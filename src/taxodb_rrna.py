@@ -8,7 +8,7 @@
 # version 2
 
 import argparse
-from bsddb import db                   # the Berkeley db data base
+from bsddb3 import db                   # the Berkeley db data base
 
 
 def extract_silva(line):
