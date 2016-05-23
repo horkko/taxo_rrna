@@ -20,4 +20,6 @@ Get Berkeley DB database format:
 
 $ python taxodb_rrna.py -i current_GREENGENES_gg16S_unaligned.fasta -n greengenes -b gg_accVosoc.bdb
 $ python taxodb_rrna.py -i LSURef_111_tax_silva.fasta -n silva  -b silva_accVosoc.bdb
+$ python taxodb_rrna.py -i silva_lsu.fa -n silva_lsu -b silva_lsu_accVosoc.bdb
+$ python taxodb_rrna.py -i silva_ssu.fa -n silva_ssu  -b silva_ssu_accVosoc.bdb
 
