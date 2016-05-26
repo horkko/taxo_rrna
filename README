@@ -1,4 +1,4 @@
-taxodb.py is a simple python program that it uses to format Silva and Greengenes 16S databases
+taxodb_rrna.py is a simple python program that it uses to format Silva and Greengenes 16S databases
 It requires the bsddb3 python library (https://pypi.python.org/pypi/bsddb3/) and Berkeley DB library (http://www.oracle.com) to work. 
 
 DATA:
