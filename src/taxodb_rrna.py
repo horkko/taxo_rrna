@@ -104,7 +104,7 @@ if __name__ == '__main__':
                                  help="16S database type",
                                  metavar="string",
                                  type=str,
-                                 choices=['silva', 'greengenes'])
+                                 choices=['silva', 'silva_lsu', 'silva_ssu','greengenes'])
 
     args = parser.parse_args()
 
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     acc, oc, os = '', '', ''
     while line:
         if line[0] == '>':
-            if args.db_name == 'silva':
+            if 'silva' in args.db_name :
                 acc, oc, os = extract_silva(line)
             if args.db_name == 'greengenes':
                 acc, oc, os = extract_gg(line)
