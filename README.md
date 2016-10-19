@@ -3,6 +3,7 @@ It requires the *[bsddb3](https://pypi.python.org/pypi/bsddb3/)* python library 
 
 ## INSTALL
 1. **Install Berkeley DB**
+
 * *Mac OSX*
 ```
 brew install berkeley-db4
@@ -16,10 +17,12 @@ sudo apt-get install libdb-dev
 sudo yum install libdb-devel
 ```
 2. Install `bsddb3`
+
 ```
 pip install bsddb3
 ```
 3. **Install `taxodb_rrna.py`**
+
 ```
 python setup.py install
 ```
