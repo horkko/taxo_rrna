@@ -4,8 +4,7 @@
 # Corinne Maufrais
 # Institut Pasteur, DSI/CIB
 # maufrais@pasteur.fr
-#
-# version 2
+# Updated by Emmanuel Quevillon <tuco@pasteur.fr>
 
 import argparse
 from bsddb3 import db                   # the Berkeley db data base
@@ -27,7 +26,6 @@ def extract_silva(line):
     taxo = ';'.join(new_fld[:-1])
     os = new_fld[-1]
     return acc, taxo, os
-
 
 def extract_gg(line):
     definition = {'k__': 'Kingdom', 'p__': 'Phylum', 'c__': 'Class', 'o__': 'Order', 'f__': 'Family',
@@ -61,31 +59,21 @@ def extract_gg(line):
     taxo = taxo.replace('s__', '')
     return acc, taxo, os
 
-
-def extractNCBI(line):
-    fld = line[1:].split()
-    acc = fld[0].split('.')[0]
-    end_line = ' '.join(fld[1:])
-    new_fld = end_line.split(';')
-    taxo = ';'.join(new_fld[:-1])
-    os = new_fld[-1]
-    return acc, taxo, os
-
-
 if __name__ == '__main__':
     epilog = """
-    Creation of taxonomy Berleley DB for Silva and Greengenes 16S databases.
+    Creates Berkeley DB taxonomy database for Silva and Greengenes 16S databases.
 
     Silva is composed of LSURef and SSURef:
     http://www.arb-silva.de/fileadmin/silva_databases/current/Exports/LSURef_111_tax_silva.fasta.tgz
     http://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SSURef_111_NR_tax_silva.fasta.tgz
 
     Greengenes:
-    http://greengenes.lbl.gov/Download/Sequence_Data/Fasta_data_files/current_GREENGENES_gg16S_unaligned.fasta.gz"""
+    ftp://greengenes.microbio.me/greengenes_release/current/gg_13_5_with_header.fasta.gz"""
 
     parser = argparse.ArgumentParser(prog='taxodb_rrna.py',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-                                     description="Creation of taxonomy Berleley DB for Silva and Greengenes 16S databases", epilog=epilog)
+                                     description="Creates Berkeley DB taxonomy database for Silva and Greengenes 16S databases.",
+                                     epilog=epilog)
 
     general_options = parser.add_argument_group(title="Options", description=None)
 
