@@ -2,7 +2,7 @@
 It requires the *[bsddb3](https://pypi.python.org/pypi/bsddb3/)* python library and *[Berkeley DB library](http://www.oracle.com)* to work.
 
 ## INSTALL
-1. Install *Berkeley DB*
+1. **Install Berkeley DB**
 * *Mac OSX*
 ```
 brew install berkeley-db4
@@ -17,11 +17,11 @@ sudo yum install libdb-devel
 ```
 2. Install `bsddb3`
 ```
-$ pip install bsddb3
+pip install bsddb3
 ```
-3. Install *python* script
+3. **Install `taxodb_rrna.py`**
 ```
-$ python setup.py install
+python setup.py install
 ```
 
 ## GETTING DATA
