@@ -63,7 +63,7 @@ def create_bdb(ids=None, name=None, mode=0666):
         print >> sys.stderr, "IDs list empty or not given"
         sys.exit(1)
     if not name:
-        print >> sys.stderr, "A Berkelet database name is required"
+        print >> sys.stderr, "A Berkeley database name is required"
         sys.exit(1)
     bdb = db.DB()
     try:
@@ -138,10 +138,10 @@ def extract_gg(fh=None, sep=''):
                       'g__': 'Genus', 's__': 'species classification system', 'otu_': 'Operational Taxonomic Units'}
         # >4038 X89044.1 termite hindgut clone sp5_18 k__Bacteria; p__Spirochaetes; c__Spirochaetes (class); o__Spirochaetales; f__Spirochaetaceae; g__Treponema; s__sp5; otu_4136
         # >prokMSA_id gb_acc taxo otu
-        fld = line[1:].split(sep)
+        fld = line[1:].split()
 
         # !! Format updated for biomaj : >gg||123 instead of >123
-        fld_acc = fld[0].split('||')
+        fld_acc = fld[0].split(sep)
         if len(fld_acc) == 2 and fld_acc[1].isdigit():
             acc = fld_acc[1]
         else:
