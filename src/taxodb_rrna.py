@@ -33,7 +33,7 @@ def parse_file(input=None, dbname=None):
     if dbname not in supported_dbs:
         print >> sys.stderr, "16S dbname %s not supported (%s)" % (dbname, supported_dbs)
         sys.exit(1)
-    print >> sys.stdout, "DBNAME is %s and found in supported db" % dbname
+
     with open(input, 'rb') as fh:
         if 'silva' in dbname:
             info = extract_silva(fh=fh, sep='||')
