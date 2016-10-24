@@ -8,8 +8,9 @@
 
 import argparse
 import sys
-import os
 from bsddb3 import db                   # the Berkeley db data base
+from pympler import asizeof
+import humanfriendly
 
 
 def parse_file(input=None, dbname=None):
@@ -41,6 +42,7 @@ def parse_file(input=None, dbname=None):
             info = extract_gg(fh=fh, sep='||')
         else:
             print >> sys.stderr, "16S dbname %s not supported (%s)" % (dbname, supported_dbs)
+        print >> sys.stdout, "Size of returned list %s" % str(humanfriendly.format_size(asizeof.asizeof(info), binary=True))
         return info
 
 
@@ -77,6 +79,7 @@ def create_bdb(ids=None, name=None, mode=0666):
         print >> sys.stderr, "Error while inserting value: %s" % str(err)
         sys.exit(1)
     finally:
+        print >> sys.stdout, "Size of final BDB %s" % str(humanfriendly.format_size(asizeof.asizeof(bdb), binary=True))
         bdb.close()
     return True
 
