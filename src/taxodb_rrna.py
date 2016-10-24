@@ -298,16 +298,15 @@ if __name__ == '__main__':
         bdb.open(args.accVos_oc, None, db.DB_HASH, db.DB_CREATE, mode=0666)
         if 'silva' in args.db_name:
             extract_silva2(input=args.fasta, bdb=bdb)
-        elif 'greengenes' in args.db_name:
+        if 'greengenes' in args.db_name:
             extract_gg2(input=args.fasta, bdb=bdb)
-        else:
-            print >> sys.stderr, "Unsupported 16S database %s" % args.db_name
-            sys.exit(1)
+    except IOError as err:
+        print >> sys.stderr, "Can't open input file %s: %s" % (args.fasta, str(err))
     except db.DBAccessError as err:
-        print >> sys.stderr, "Error while opening Berkeley database: %s" % str(err)
+        print >> sys.stderr, "Error while opening Berkeley database %s: %s" % (args.accVos_oc, str(err))
         sys.exit(1)
     except db.DBError as err:
-        print >> sys.stderr, "Error while inserting value: %s" % str(err)
+        print >> sys.stderr, "Error while inserting value in Berkeley database: %s" % str(err)
         sys.exit(1)
     finally:
         print >> sys.stdout, "Size of final BDB %s" % str(humanfriendly.format_size(asizeof.asizeof(bdb), binary=True))
