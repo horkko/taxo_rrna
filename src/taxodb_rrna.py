@@ -18,7 +18,7 @@ def parse_file(input=None, dbname=None):
 
     :param input: Input file to parser (expected FASTA format)
     :type input: str
-    :param dbname: 16S database name ('silva', 'greengenes')
+    :param dbname: 16S database name ('silva', 'silva_ssu', 'silva_lsu', 'greengenes')
     :type dbname: str
     :return: List of parsed elements from FASTA header
     :rtype: list
@@ -33,12 +33,14 @@ def parse_file(input=None, dbname=None):
     if dbname not in supported_dbs:
         print >> sys.stderr, "16S dbname %s not supported (%s)" % (dbname, supported_dbs)
         sys.exit(1)
-
+    print >> sys.stdout, "DBNAME is %s and found in supported db" % dbname
     with open(input, 'rb') as fh:
-        if dbname == 'silva':
+        if 'silva' in dbname:
             info = extract_silva(fh=fh, sep='||')
-        else:
+        elif 'greengenes' in dbname:
             info = extract_gg(fh=fh, sep='||')
+        else:
+            print >> sys.stderr, "16S dbname %s not supported (%s)" % (dbname, supported_dbs)
         return info
 
 
@@ -89,7 +91,7 @@ def extract_silva(fh=None, sep='||'):
     :return: List of ids parsed
     :rtype: list
     """
-    if not fh or not type(fh, file):
+    if not fh or not isinstance(fh, file):
         print >> sys.stderr, "File handle expected"
 
     info = []
@@ -125,7 +127,7 @@ def extract_gg(fh=None, sep=''):
     :return: List of ids parsed
     :rtype: list
     """
-    if not fh or not type(fh, file):
+    if not fh or not isinstance(fh, file):
         print >> sys.stderr, "File handle expected"
 
     info = []
