@@ -83,7 +83,6 @@ def create_bdb(ids=None, name=None, mode=0666):
         bdb.close()
     return True
 
-
 def extract_silva(fh=None, sep='||'):
     """
     Parse FASTA header for Silva 16S database
@@ -118,6 +117,45 @@ def extract_silva(fh=None, sep='||'):
         if acc and taxo and os:
             info.append({'acc': acc, 'taxo': taxo, 'os': os})
     return info
+
+
+def extract_silva2(input=None, bdb=None, sep='||'):
+    """
+    Parse FASTA header for Silva 16S database
+
+    :param input: Fasta file
+    :type input: str
+    :param bdb: Berkeley database file handle
+    :type bdb: bdb
+    :param sep: Fasta header separator, default '||'
+    :type sep: str
+    :return: Boolean
+    :rtype: bool
+    """
+    if not input:
+        print >> sys.stderr, "Input FASTA file required"
+        sys.exit(1)
+    with open(input, 'rb') as fh:
+        for line in fh:
+            if line[0] != '>':
+                continue
+            # Fasta header: >accession_number.start_position.stop_position taxonomic; organism name
+            fld = line[1:].split()
+
+            # !! Format updated for biomaj : >silva||FJ805841.1.4128 instead of >FJ805841.1.4128
+            fld_acc = fld[0].split(sep)
+            if len(fld_acc) == 2:
+                acc = fld_acc[1].split('.')[0]
+            else:
+                acc = fld[0].split('.')[0]
+
+            end_line = ' '.join(fld[1:])
+            new_fld = end_line.split(';')
+            taxo = ';'.join(new_fld[:-1])
+            os = new_fld[-1]
+            if acc and taxo and os:
+                bdb.put(acc, '%s_@#$_%s' % (os, taxo))
+    return True
 
 
 def extract_gg(fh=None, sep=''):
@@ -165,6 +203,55 @@ def extract_gg(fh=None, sep=''):
             info.append({'acc': acc, 'taxo': taxo, 'os': os})
     return info
 
+def extract_gg2(input=None, bdb=None, sep='||'):
+    """
+    Parse FASTA header for Greengenes 16S database
+
+    :param input: Fasta file
+    :type input: str
+    :param bdb: Berkeley database file handle
+    :type bdb: bdb
+    :param sep: Fasta header separator, default ''
+    :type sep: str
+    :return: Boolean
+    :rtype: bool
+    """
+    if not input:
+        print >> sys.stderr, "Fasta file expected"
+        sys.exit(1)
+
+    with open(input, 'rb') as fh:
+        for line in fh:
+            if line[0] != '>':
+                continue
+            definition = {'k__': 'Kingdom', 'p__': 'Phylum', 'c__': 'Class', 'o__': 'Order', 'f__': 'Family',
+            'g__': 'Genus', 's__': 'species classification system', 'otu_': 'Operational Taxonomic Units'}
+            # >4038 X89044.1 termite hindgut clone sp5_18 k__Bacteria; p__Spirochaetes; c__Spirochaetes (class); o__Spirochaetales; f__Spirochaetaceae; g__Treponema; s__sp5; otu_4136
+            # >prokMSA_id gb_acc taxo otu
+            fld = line[1:].split()
+
+            # !! Format updated for biomaj : >gg||123 instead of >123
+            fld_acc = fld[0].split(sep)
+            if len(fld_acc) == 2 and fld_acc[1].isdigit():
+                acc = fld_acc[1]
+            else:
+                acc = fld[0]
+            end_line = ' '.join(fld[2:])
+            k_index = end_line.index('k__')
+            os = end_line[:k_index].strip()
+            try:
+                otu_index = end_line.index('otu_')
+                taxo = end_line[k_index:otu_index]
+            except:
+                # new format: 02/07/14: no 'otu_' field
+                # >4038 X89044.1 termite hindgut clone sp5_18 k__Bacteria; p__Spirochaetes; c__Spirochaetes (class); o__Spirochaetales; f__Spirochaetaceae; g__Treponema; s__sp5
+                taxo = end_line[k_index:]
+            taxo = taxo.replace('k__', '').replace('p__', '').replace('c__', '').replace('o__', '').replace('f__', '')\
+                       .replace('g__', '').replace('s__', '')
+            if acc and taxo and os:
+                bdb.put(acc, '%s_@#$_%s' % (os, taxo))
+    return True
+
 
 if __name__ == '__main__':
     epilog = """
@@ -204,7 +291,26 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    ids = parse_file(input=args.fasta, dbname=args.db_name)
-    create_bdb(ids=ids, name=args.accVos_oc, mode=0666)
+    # ids = parse_file(input=args.fasta, dbname=args.db_name)
+    # create_bdb(ids=ids, name=args.accVos_oc, mode=0666)
+    bdb = db.DB()
+    try:
+        bdb.open(args.accVos_oc, None, db.DB_HASH, db.DB_CREATE, mode=0666)
+        if 'silva' in args.db_name:
+            extract_silva2(input=args.fasta, bdb=bdb)
+        elif 'greengenes' in args.db_name:
+            extract_gg2(input=args.fasta, bdb=bdb)
+        else:
+            print >> sys.stderr, "Unsupported 16S database %s" % args.db_name
+            sys.exit(1)
+    except db.DBAccessError as err:
+        print >> sys.stderr, "Error while opening Berkeley database: %s" % str(err)
+        sys.exit(1)
+    except db.DBError as err:
+        print >> sys.stderr, "Error while inserting value: %s" % str(err)
+        sys.exit(1)
+    finally:
+        print >> sys.stdout, "Size of final BDB %s" % str(humanfriendly.format_size(asizeof.asizeof(bdb), binary=True))
+        bdb.close()
     sys.exit(0)
 
