@@ -140,12 +140,13 @@ def extract_gg(input=None, bdb=None, sep='||'):
         print >> sys.stderr, "Fasta file expected"
         sys.exit(1)
 
+
     with open(input, 'rb') as fh:
         for line in fh:
             if line[0] != '>':
                 continue
             definition = {'k__': 'Kingdom', 'p__': 'Phylum', 'c__': 'Class', 'o__': 'Order', 'f__': 'Family',
-            'g__': 'Genus', 's__': 'species classification system', 'otu_': 'Operational Taxonomic Units'}
+                          'g__': 'Genus', 's__': 'species classification system', 'otu_': 'Operational Taxonomic Units'}
             # >4038 X89044.1 termite hindgut clone sp5_18 k__Bacteria; p__Spirochaetes; c__Spirochaetes (class); o__Spirochaetales; f__Spirochaetaceae; g__Treponema; s__sp5; otu_4136
             # >prokMSA_id gb_acc taxo otu
             fld = line[1:].split()
@@ -166,8 +167,8 @@ def extract_gg(input=None, bdb=None, sep='||'):
                 # new format: 02/07/14: no 'otu_' field
                 # >4038 X89044.1 termite hindgut clone sp5_18 k__Bacteria; p__Spirochaetes; c__Spirochaetes (class); o__Spirochaetales; f__Spirochaetaceae; g__Treponema; s__sp5
                 taxo = end_line[k_index:]
-            taxo = taxo.replace('k__', '').replace('p__', '').replace('c__', '').replace('o__', '').replace('f__', '')\
-                       .replace('g__', '').replace('s__', '')
+            taxo = taxo.replace('k__', '').replace('p__', '').replace('c__', '').replace('o__', '').replace('f__', '') \
+                .replace('g__', '').replace('s__', '')
             if acc and taxo and os:
                 bdb.put(acc, '%s_@#$_%s' % (os, taxo))
     return True
@@ -207,7 +208,7 @@ if __name__ == '__main__':
                                  metavar="<db type>",
                                  type=str,
                                  required=True,
-                                 choices=['silva' 'greengenes'])
+                                 choices=['silva', 'greengenes'])
 
     args = parser.parse_args()
 
@@ -221,7 +222,7 @@ if __name__ == '__main__':
     except IOError as err:
         print >> sys.stderr, "Can't open input file %s: %s" % (args.fasta, str(err))
     except db.DBAccessError as err:
-        print >> sys.stderr, "Error while opening Berkeley database %s: %s" % (args.accVos_oc, str(err))
+        print >> sys.stderr, "Error while opening Berkeley database %s: %s" % (args.bdb_name, str(err))
         sys.exit(1)
     except db.DBError as err:
         print >> sys.stderr, "Error while inserting value in Berkeley database: %s" % str(err)
