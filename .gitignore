@@ -1,0 +1,5 @@
+.idea
+taxodb/*.pyc
+*~
+taxodb/*~
+
