@@ -41,6 +41,8 @@ class Taxo(object):
         :return:
         """
         del self.args['dbtype']
+        del self.args['verbose']
+
         if self.dbtype == 'silva' or self.dbtype == 'greengenes':
             for arg in ['use_lineage', 'format', 'taxofmt', 'flatdb', 'nodes', 'names']:
                 if arg in self.args:
