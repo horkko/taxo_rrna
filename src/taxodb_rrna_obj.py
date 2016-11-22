@@ -89,7 +89,6 @@ if __name__ == '__main__':
     if args.fasta and (args.nodes or args.names or args.flatdb):
         Utils.error("Incompatible options -i and -n/-d/-k")
     Utils.VERBOSE = args.verbose
-    del args.__dict__['verbose']
     taxodb = Taxo(args.__dict__).get_db()
 
     if args.bdb:
