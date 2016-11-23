@@ -6,15 +6,17 @@ from taxodb.utils import Utils
 
 
 class Taxo(object):
-    """Wrapping class for creating inheriting classes such as Silva and GreenGenes"""
+    """Wrapping class for creating inheriting classes such as GreenGenes, NCBI, and Silva"""
 
-    def __init__(self, kwargs):
+    def __init__(self, args):
         """
         Default taxodb class
-        :param name:
-        :param input:
-        :param bdb:
+
+        :param args: NameSpace object from ArgumentParser.parse_args()
+        :type args: NameSpace
+        :raise: SystemExit if 'dbtype' not set
         """
+        kwargs = args.__dict__
         if not kwargs['dbtype']:
             Utils.error("A taxodb name is required")
         self.args = kwargs
@@ -23,6 +25,7 @@ class Taxo(object):
 
     def get_db(self):
         """
+        Get the name of database type being created
 
         :return:
         """
@@ -38,7 +41,8 @@ class Taxo(object):
         """
         Remove unsupported args for specific db type
 
-        :return:
+        :return: True
+        :rtype: bool
         """
         del self.args['dbtype']
         del self.args['verbose']

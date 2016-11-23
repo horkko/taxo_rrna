@@ -29,7 +29,7 @@ class NCBI(object):
     AUTH_OS_NAMES = ['scientific name', 'equivalent name', 'synonym', 'authority', 'common name']
 
     def __init__(self, names=None, nodes=None, bdb=None, header_sep=DEFAULT_SEPARATOR, db_sep=DB_VALUE_SEPARATOR,
-                 taxofmt='full', flatdb=None, mode=0666, use_lineage=False):
+                 taxofmt='full', flatdb=None, mode=0666):
         """
         Create a new NCBI object to parse dmp taxonomy files and create Berkeley DB file
 
@@ -50,8 +50,6 @@ class NCBI(object):
         :type taxofmt: str
         :param mode: Unix mode to create Berkeley database file, default 0666
         :type mode: int
-        :param use_lineage: Build lineage while parsing nodes.dmp and store it into memory
-        :type use_lineage: bool
         :raise: SystemExit if `input` file is not found
         SystemExit if `bdb` file can not be created or opened
         """
@@ -63,11 +61,11 @@ class NCBI(object):
         self.dsep = db_sep
         self.taxofmt = taxofmt
         self.mode = mode
-        self.use_lineage = use_lineage
+        # self.use_lineage = use_lineage
         self.db_size = 0
         self.pnodes = {}
         self.taxids = []
-        self.lineage = {}
+        # self.lineage = {}
         self.oc = {}
 
         if not self.names:
@@ -83,8 +81,6 @@ class NCBI(object):
         if self.taxofmt not in NCBI.TAX_FMT_SUPPORTED:
             Utils.error("Taxonomy format %s not supported (%s)" % (self.taxofmt, NCBI.TAX_FMT_SUPPORTED))
         self.db = db.DB()
-        if self.use_lineage:
-            Utils.verbose("use_lineage set ...")
 
     def create_bdb(self, bdb=None, mode=None):
         """
@@ -105,20 +101,20 @@ class NCBI(object):
         try:
             self._parse_nodes()
             self._parse_names()
-            if self.use_lineage:
-                self._build_lineage_and_oc()
+            # if self.use_lineage:
+            #     self._build_lineage_and_oc()
             Utils.verbose("Creating Berkeley database ... ")
             Utils.start_timer()
             self.db.open(self.bdb, None, db.DB_HASH, db.DB_CREATE, mode=self.mode)
             for taxid in self.taxids:
-                if not self.lineage:
-                    li, oc = self._extract_LI_and_OC(taxid)
+                # if not self.lineage:
+                li, oc = self._extract_LI_and_OC(taxid)
                 for los in self.pnodes[taxid]['names'].values():
                     for org_sp in los:
-                        if self.lineage:
-                            self.db.put(org_sp, "; ".join(self.oc[taxid]))
-                        else:
-                            self.db.put(org_sp, oc)
+                        # if self.lineage:
+                        #     self.db.put(org_sp, "; ".join(self.oc[taxid]))
+                        # else:
+                        self.db.put(org_sp, oc)
             Utils.verbose("Elapsed time %.3f sec" % Utils.elapsed_time())
         except db.DBAccessError as err:
             Utils.error("Can't open Berkeley db %s: %s" % (self.bdb, str(err)))
@@ -146,16 +142,16 @@ class NCBI(object):
         if not len(self.taxids):
             self._parse_nodes()
             self._parse_names()
-            if self.use_lineage:
-                self._build_lineage_and_oc()
+            # if self.use_lineage:
+            #     self._build_lineage_and_oc()
         try:
             with open(self.flatdb, 'w') as flatfh:
                 for taxid in self.taxids:
-                    if not self.use_lineage:
-                        li, oc = self._extract_LI_and_OC(taxid)
-                    else:
-                        oc = self.oc[taxid]
-                        li = self.lineage[taxid]
+                    # if not self.use_lineage:
+                    li, oc = self._extract_LI_and_OC(taxid)
+                    # else:
+                    #     oc = self.oc[taxid]
+                    #     li = self.lineage[taxid]
                     print('ID   %s;' % str(taxid), file=flatfh)
                     print('XX', file=flatfh)
                     self._print_line(flatfh, li, 'LI', car=char)
@@ -176,47 +172,47 @@ class NCBI(object):
         """
         return str(self.__class__.__name__)
 
-    def _build_lineage_and_oc(self):
-        """
-        Build lineage and organism classification for taxonomy
-
-        :return: True
-        :rtype: bool
-        """
-        Utils.verbose("Building lineage and OC ...")
-        Utils.start_timer()
-        for taxid in self.taxids:
-            # if taxid == 1:
-            #     break
-            # Utils.verbose("[for] %s" % taxid)
-            lineage = []
-            oc = []
-            tid = taxid
-            while tid in self.pnodes and tid != '1':
-                id_parent = self.pnodes[tid]['id_parent']
-                if self.pnodes[tid]['id_parent'] != '1':
-                    lineage.append(id_parent)
-                # Utils.verbose("[while] %s/%s" % (tid, id_parent))
-                if id_parent == tid:
-                    tid = '1'
-                else:
-                    tid = id_parent
-                    if tid != '1' and tid in self.pnodes:
-                        org_species = self._extract_OS(tid)
-                        # default
-                        # org_species = self.pnodes[taxid]['names'].keys()[0][0]
-                        for name in NCBI.AUTH_OS_NAMES:
-                            if name in self.pnodes[taxid]['names']:
-                                org_species = self.pnodes[taxid]['names'][name][0]
-                        if self.pnodes[id_parent]['rank'] != 'no rank':
-                            org_species += ' (%s)' % self.pnodes[tid]['rank']
-                        oc.append(org_species)
-            lineage.reverse()
-            oc.reverse()
-            self.lineage[taxid] = lineage
-            self.oc[taxid] = oc
-        Utils.verbose("Elapsed time %.3f sec" % Utils.elapsed_time())
-        return True
+    # def _build_lineage_and_oc(self):
+    #     """
+    #     Build lineage and organism classification for taxonomy
+    #
+    #     :return: True
+    #     :rtype: bool
+    #     """
+    #     Utils.verbose("Building lineage and OC ...")
+    #     Utils.start_timer()
+    #     for taxid in self.taxids:
+    #         # if taxid == 1:
+    #         #     break
+    #         # Utils.verbose("[for] %s" % taxid)
+    #         lineage = []
+    #         oc = []
+    #         tid = taxid
+    #         while tid in self.pnodes and tid != '1':
+    #             id_parent = self.pnodes[tid]['id_parent']
+    #             if self.pnodes[tid]['id_parent'] != '1':
+    #                 lineage.append(id_parent)
+    #             # Utils.verbose("[while] %s/%s" % (tid, id_parent))
+    #             if id_parent == tid:
+    #                 tid = '1'
+    #             else:
+    #                 tid = id_parent
+    #                 if tid != '1' and tid in self.pnodes:
+    #                     org_species = self._extract_OS(tid)
+    #                     # default
+    #                     # org_species = self.pnodes[taxid]['names'].keys()[0][0]
+    #                     for name in NCBI.AUTH_OS_NAMES:
+    #                         if name in self.pnodes[taxid]['names']:
+    #                             org_species = self.pnodes[taxid]['names'][name][0]
+    #                     if self.pnodes[id_parent]['rank'] != 'no rank':
+    #                         org_species += ' (%s)' % self.pnodes[tid]['rank']
+    #                     oc.append(org_species)
+    #         lineage.reverse()
+    #         oc.reverse()
+    #         self.lineage[taxid] = lineage
+    #         self.oc[taxid] = oc
+    #     Utils.verbose("Elapsed time %.3f sec" % Utils.elapsed_time())
+    #     return True
 
     def _extract_LI_and_OC(self, taxid):
         """

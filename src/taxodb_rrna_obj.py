@@ -35,11 +35,11 @@ if __name__ == '__main__':
                         help="Fasta file with 16S sequences. Unsupported with -t/--db_type ncbi.",
                         metavar="<file>",
                         type=str)
-    parser.add_argument("-l", "--use_lineage",
-                        dest="use_lineage",
-                        action="store_true",
-                        default=False,
-                        help="Use lineage method")
+    # parser.add_argument("-l", "--use_lineage",
+    #                     dest="use_lineage",
+    #                     action="store_true",
+    #                     default=False,
+    #                     help="Use lineage method")
     parser.add_argument("-n", "--names",
                         dest="names",
                         help="names.dmp file. Supported only with -t/--db_type ncbi.",
@@ -85,11 +85,13 @@ if __name__ == '__main__':
                         action="store_true",
                         default=False,
                         help="Set verbose mode on")
+
     args = parser.parse_args()
+
     if args.fasta and (args.nodes or args.names or args.flatdb):
         Utils.error("Incompatible options -i and -n/-d/-k")
     Utils.VERBOSE = args.verbose
-    taxodb = Taxo(args.__dict__).get_db()
+    taxodb = Taxo(args).get_db()
 
     if args.bdb:
         taxodb.create_bdb()
